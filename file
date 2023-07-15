@@ -1,0 +1,323 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+// 10 function declarations
+void adminLogin (string username, string password);
+void adminMenu();
+void adminDeposit();
+void adminRegister();
+void adminChangePassword();
+void userLogin(string username, string password);
+void userMenu();
+void userWithdraw();
+void userCheckBalance();
+void userChangePassword();
+
+int main() 
+{
+    int choice;
+    string username, password;
+        cout << "---------------------------------------" << endl;
+        cout << "Welcome to the Stratzien Banking System" << endl;
+        cout << "---------------------------------------" << endl;
+        cout << "Please choose an option:" << endl;
+        cout << "1. Admin login" << endl;
+        cout << "2. User login" << endl;
+        cout << "3. Quit" << endl;
+        cout<<" --> ";
+        cin >> choice;
+        while(choice>=1&&choice<=3)
+        {
+        switch (choice) 
+        {
+            case 1:
+                adminLogin(username, password);//calling the admin login
+                break;
+            case 2:
+                userLogin(username, password);//calling the user login
+                break;
+            case 3:
+                cout << "Goodbye, hope to see you again soon!" << endl;
+                return 0;
+            default:
+                break;
+        }
+        }                
+        cout << "Invalid choice, please try again." << endl;
+        main();
+return 0;
+}
+
+void adminLogin(string username, string password)
+{
+    cout << "---------------------------------------\n" << endl;
+    cout<<" \nWelcome to Admin Login \n";
+    cout << "---------------------------------------\n" << endl;
+    string file_username, file_password;
+    ifstream adminDB("AdminDB.txt");
+    cout<<"Enter Username: ";
+    cin>>username;
+    cout<<"Enter password: ";
+    cin>>password;
+        getline(adminDB, file_username);
+        getline(adminDB, file_password);
+        adminDB.close();
+        if (username == file_username && password == file_password) 
+        {
+            cout << "Admin logged in successfully!\n" << endl;
+            adminMenu();
+        }
+        else
+        {   
+            cout << "\nInvalid username or password!" << endl;
+            adminLogin(username,password);
+        }
+}
+
+
+void adminMenu()
+{
+    double deposit;
+    cout<<"Welcome admin\n";
+    int choice1;
+    cout<< "Enter  an option: \n"<<endl;
+    cout<<"1. Deposit client money\n2. Register a new Client\n3. Change your password\n4. Back to Main Menu\n --> ";
+    cin>>choice1;
+    while(choice1>=1&&choice1<=4)
+    {
+    switch (choice1)
+    {
+    case 1:
+    adminDeposit();//calling the deposit 
+    break;
+    case 2:
+    adminRegister();//calling a new registration
+    break;
+    case 3:
+    adminChangePassword();//calling the password change
+    break;
+    case 4:
+    main();//back to main
+    break;
+    default:
+    break;
+   }
+ }
+    cout<<"Invalid choice "<<endl;
+    adminMenu();
+}
+
+void adminDeposit()
+{
+    double balance, deposit; 
+    ifstream balanceDB("balance.txt");
+        balanceDB>>balance;
+        balanceDB.close(); 
+        cout << "Current balance: " << balance << endl; 
+        cout << "Enter amount to deposit: ";
+        cin >> deposit; 
+        balance=balance+ deposit; 
+        cout << "New balance: " << balance << endl;
+        ofstream balanceDB_out("balance.txt"); 
+        balanceDB_out << balance << endl; 
+        balanceDB_out.close();
+        adminMenu();
+}
+
+void adminRegister() 
+{
+    string username, password;
+    double initialBalance;
+
+    // Get client information from the admin
+    cout << "Enter username for new client: ";
+    cin >> username;
+
+    cout << "Enter password for new client: ";
+    cin >> password;
+
+    cout << "Enter initial balance for new client: ";
+    cin >> initialBalance;
+
+    // Open user database file in append mode, this will make the new user be insterted to the bottom
+    ofstream userDBOut("userDB.txt", ios::app);
+    ofstream balanceDB_out("balance.txt", ios::app);
+
+    // Write new info to USER AND BALANCE
+    userDBOut << username << "\n" << password << "\n" ;
+    
+    balanceDB_out<< "\n" << initialBalance << endl;
+
+    // CloseS out these guys
+    userDBOut.close();
+    balanceDB_out.close();
+
+    cout << "New client added successfully!" << endl;
+    main();
+}
+
+
+
+void adminChangePassword() 
+{
+   string oldPassword, newPassword,fileOldPassword, username;
+   cout << "Enter current password: ";
+   cin >> oldPassword;
+
+// Validate current/old password
+ifstream adminDB("AdminDB.txt");
+getline(adminDB, username);
+getline(adminDB, fileOldPassword);
+adminDB.close();
+if (oldPassword != fileOldPassword)//validation check 
+{
+    cout << "Incorrect password, please try again." << endl;
+    adminChangePassword();
+}
+
+cout << "Enter new password: ";
+cin >> newPassword;
+
+// Update password in file
+ofstream adminDBOut("AdminDB.txt");
+adminDBOut << username << endl;
+adminDBOut << newPassword << endl;
+adminDBOut.close();
+
+cout << "Password changed successfully!" << endl;
+adminMenu();
+}
+
+void userLogin(string username, string password)
+{
+    string file_username, file_password;
+    ifstream userDB("userDB.txt");
+    cout<<"Enter Username: ";
+    cin>>username;
+    cout<<"Enter password: ";
+    cin>>password;
+    if (userDB) 
+    {
+        getline(userDB, file_username);
+        getline(userDB, file_password);
+        userDB.close();
+
+        if (username == file_username && password == file_password) 
+        {
+            cout << "User logged in successfully!" << endl;
+            userMenu();
+        }
+        else
+        {   
+            cout << "Invalid username or password! Please try again\n" << endl;
+            userLogin (username, password);        
+            
+        }
+     }
+}
+
+
+void userMenu()
+{
+    
+    int choice;
+    cout << "---------------------------------------\n" << endl;
+    cout<< "Enter  an option: \n"<<endl;
+    cout << "---------------------------------------\n" << endl;
+    cout<<"1. Withdraw cash\n2. Check your account balance\n3. Change your password\n4. Back\n";
+    cout<<" --> "<<endl;
+    cin>>choice;
+    while(choice>=1&&choice<=4)
+    {
+    switch (choice)
+    {
+    case 1:
+    userWithdraw();
+    break;
+    case 2:
+    userCheckBalance();
+    break;
+    case 3:
+    userChangePassword();
+    break;
+    case 4:
+    main();
+    break;
+    default:
+    break;
+    }    
+
+    }
+
+    cout<<"Invalid choice, kindly try again "<<endl;
+    userMenu();
+    
+}
+
+void userWithdraw()
+{
+    double balance, withdraw; 
+    ifstream balanceDB("balance.txt");
+        balanceDB>> balance; 
+        cout << "Current balance: " << balance << endl; 
+        cout << "Enter amount to withdraw: ";
+        cin >> withdraw; 
+        if(balance>=withdraw)//VALIDATION CHECK yee
+        {
+        balance=balance - withdraw; 
+        cout << "New balance: " << balance << endl;
+        balanceDB.close(); 
+        ofstream balanceDB_out("balance.txt"); 
+        balanceDB_out << balance << endl; 
+        balanceDB_out.close();
+        userMenu();
+        }
+        else
+        {
+            cout<<"It seems like your pockets are in recovery mode. Kindly enter a smaller amount\n"<<endl;
+            userWithdraw();
+        }
+     
+}
+
+void userCheckBalance()
+{
+    ifstream balanceDB("balance.txt");
+    double balance;
+    balanceDB>>balance;
+    balanceDB.close();
+    cout << "balance: " << balance << endl;
+    userMenu();
+}
+
+void userChangePassword() 
+{
+    string oldPassword, currentPassword,newPassword,username;
+    cout << "Enter current password: ";
+    cin >> oldPassword;
+    // filehandling
+    ifstream userDB("userDB.txt");
+    getline(userDB, username);
+    getline(userDB, currentPassword);
+    userDB.close();
+        // Validate current password
+    if (currentPassword == oldPassword) 
+    {
+        cout << "Enter new password: ";
+        cin >> newPassword;
+        // Update thy file
+     ofstream userDBOut("userDB.txt");
+     userDBOut <<username<<endl;
+     userDBOut <<newPassword << endl;
+     userDBOut.close();
+     cout << "Password changed successfully!" << endl;
+    }
+    else
+    {
+      cout << "Invalid password, kindly try again.";
+      userChangePassword();
+    }
+    
+}
